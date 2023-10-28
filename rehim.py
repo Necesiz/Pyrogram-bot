@@ -14,11 +14,9 @@ bot_token = Config.BOT_TOKEN
 
 rehim = Client(":memory:", api_id, api_hash, bot_token=bot_token)
 
-
-@rehim.on_message(filters.private)
-async def hello(client, message):
-    await message.reply("Hello from Pyrogram!")
-			
+@rehim.on_message(filters.command(['start']))
+def start_command(client, message):
+    message.reply_text("Merhaba! Benim adım StartBot. Nasıl yardımcı olabilirim?")
     
 #TELETHON SETRİ
 
