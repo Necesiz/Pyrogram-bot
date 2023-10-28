@@ -38,7 +38,7 @@ def button(_, callback):
 
 @rehim.on_message(filters.text & filters.command)
 def echo(_, message):
-    if message.text.lower() == "selam":
+    if message.text() == "selam":
         message.reply_text("Aleyküm Selam!")
 #TELETHON SETRİ
 
