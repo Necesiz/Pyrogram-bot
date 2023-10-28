@@ -7,5 +7,5 @@ class Config():
     admins = {}
     API_ID = int(os.environ.get("API_ID","15954332"))
     API_HASH = os.environ.get("API_HASH","85adea6f1eaf068b707703b4846a9ced")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "5854631326:AAG4yxaov6v7Ged2fNLqpN9EGrwz5H5ir8o")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "6890806493:AAGi60mTAInqXX2Ax8EK0qCvGOVBEhkHBok")
     
