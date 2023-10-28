@@ -36,7 +36,7 @@ def button(_, callback):
         callback.message.reply_text("Bot deaktiv edildi.")
         callback.message.edit_reply_markup(reply_markup=None)
 
-@rehim.on_message(filters.text & ~filters.command)
+@rehim.on_message(filters.text & filters.command)
 def echo(_, message):
     if message.text.lower() == "selam":
         message.reply_text("Aleyküm Selam!")
