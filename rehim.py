@@ -1,10 +1,7 @@
 
 #pyrogram
 
-from pyrogram import Client, filters
-from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-
+#ss
 from Config import Config
 
 api_id = Config.API_ID
