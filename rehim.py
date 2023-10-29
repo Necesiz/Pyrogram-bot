@@ -1,5 +1,4 @@
-from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
 
 from Config import Config
 
@@ -9,45 +8,51 @@ bot_token = Config.BOT_TOKEN
 
 
 
-app = Client(":memory:", api_id, api_hash, bot_token=bot_token)
+client = Client(":memory:", api_id, api_hash, bot_token=bot_token)
 
 
-def get_chat_info(chat):
-    chat_name = chat.title
-    chat = app.get_chat(chat.id)
-    messages_count = chat.messages_count
-    return chat_name, messages_count
+from telethon import TelegramClient, events, utils
 
-def get_user_info(user):
+client = TelegramClient('session_name', api_id, api_hash)
+
+@client.on(events.NewMessage(pattern='/me'))
+async def get_user_info(event):
+    chat = await event.get_chat()
+    chat_name = utils.get_display_name(chat)
+    chat_id = utils.get_peer_id(chat)
+
+    user = await event.get_sender()
     user_id = user.id
-    first_name = user.first_name
-    last_name = user.last_name
-    return user_id, first_name, last_name
+    user_first_name = user.first_name
+    user_last_name = user.last_name if user.last_name else ""
 
-@app.on_message(filters.command("me"))
-def my_info(_, message):
-    chat_name, messages_count = get_chat_info(message.chat)
-    user_id, first_name, last_name = get_user_info(message.from_user)
+    messages = await client.get_messages(chat_id, limit=0)
+    message_count = len(messages)
 
-    reply_markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Məlumat al", callback_data=f"get_info_{user_id}")]
-    ])
+    info_message = (f"Chat Adı: {chat_name}\n"
+                    f"Toplam Mesaj Sayısı: {message_count}\n"
+                    f"Kullanıcı ID: {user_id}\n"
+                    f"Ad: {user_first_name}\n"
+                    f"Soyad: {user_last_name}")
 
-    message.reply_text(f"Chat adı: {chat_name}\nMesaj sayısı: {messages_count}\n"
-                       f"Kullanıcı ID: {user_id}\nAd: {first_name}\nSoyad: {last_name}", 
-                       reply_markup=reply_markup)
+    buttons = [
+        [{"text": "Məlumat al", "callback_data": "get_info"}]
+    ]
 
-@app.on_callback_query()
-def get_info(_, query):
-    user_id = int(query.data.split("_")[2])
-    user = app.get_users(user_id)
-    _, _, _ = get_user_info(user)
-    query.answer(f"Kullanıcı ID: {user_id}\nAd: {user.first_name}\nSoyad: {user.last_name}")
+    await event.reply(info_message, buttons=buttons)
 
-app.run()
+@client.on(events.CallbackQuery(pattern="get_info"))
+async def send_user_info(event):
+    user = await event.get_sender()
+    user_id = user.id
+    user_first_name = user.first_name
+    user_last_name = user.last_name if user.last_name else ""
 
-#pyrogram
+    info_message = (f"Kullanıcı ID: {user_id}\n"
+                    f"Ad: {user_first_name}\n"
+                    f"Soyad: {user_last_name}")
 
-#ss
+    await event.edit(info_message)
 
-
+client.start()
+client.run_until_disconnected()
