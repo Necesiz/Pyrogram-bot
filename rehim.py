@@ -14,6 +14,7 @@ app = Client(":memory:", api_id, api_hash, bot_token=bot_token)
 
 def get_chat_info(chat):
     chat_name = chat.title
+    chat = app.get_chat(chat.id)
     messages_count = chat.total_messages
     return chat_name, messages_count
 
