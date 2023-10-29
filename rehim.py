@@ -1,5 +1,4 @@
-from telethon import TelegramClient, events, utils 
-from telethon.tl.functions.users import GetFullUser 
+from pyrogram import Client, filters
 
 
 from Config import Config
@@ -10,41 +9,35 @@ bot_token = Config.BOT_TOKEN
 
 
 
-client = TelegramClient('chatbot_session', api_id, api_hash).start(bot_token=bot_token)
 
 
 
-@client.on(events.NewMessage(pattern='/me'))
-async def get_user_info(event):
-    chat = await event.get_chat()
-    chat_id = utils.get_peer_id(chat)
+app = Client("my_bot", api_id, api_hash, bot_token=bot_token)
 
-    # Kullanıcı hakkında bilgileri al
-    user_id = event.sender_id
-    user = await client(GetFullUser(user_id))
+@app.on_message(filters.command("me"))
+def get_user_info(_, message):
+    chat = message.chat
+    user = message.from_user
+    chat_info = app.get_chat(chat.id)
+    chat_creator = chat_info.creator
+    chat_members = chat_info.members_count
 
-    # Kullanıcı adı ve soyadını al
-    first_name = user.user.first_name
-    last_name = user.user.last_name if user.user.last_name else ""
+    first_name = user.first_name
+    user_id = user.id
+    message_count = user.messages_count
+    message.delete()  # İlk mesajı sil
 
-    # Chat ismini al
-    chat_title = chat.title
+    response = (
+        f"Melumatlar alındı, sizə ötürdüm!\n\n"
+        f"Chat İsmi: {chat.title}\n"
+        f"Chat ID: {chat.id}\n"
+        f"Chat Yaratıcısı: {chat_creator}\n"
+        f"Chat Üyeleri: {chat_members}\n"
+        f"Mesaj Sayısı: {message_count}\n"
+        f"Kullanıcı Adı: {first_name}\n"
+        f"Kullanıcı ID'si: {user_id}"
+    )
+    
+    message.reply(response)
 
-    # Toplam mesaj sayısını al
-    messages = await client.get_messages(chat, limit=0)
-    message_count = messages.total
-
-    # Bilgileri gönder
-    buttons = [
-        [{"text": "Məlumat al", "callback_data": "get_info"}]
-    ]
-    message = f"Chat adı: {chat_title}\nToplam mesaj sayısı: {message_count}\n\nKullanıcı ID: {user_id}\nAd: {first_name}\nSoyad: {last_name}"
-    await event.respond(message, buttons=buttons)
-
-@client.on(events.CallbackQuery())
-async def callback_handler(event):
-    if event.data == b'get_info':
-        await event.edit('Məlumat alındı.')
-
-client.start()
-client.run_until_disconnected()
+app.run()
