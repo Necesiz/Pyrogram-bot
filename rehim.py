@@ -8,8 +8,6 @@ bot_token = Config.BOT_TOKEN
 
 
 
-client = Client(":memory:", api_id, api_hash, bot_token=bot_token)
-
 
 from telethon import TelegramClient, events, utils
 
