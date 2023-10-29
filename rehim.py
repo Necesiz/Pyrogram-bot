@@ -1,4 +1,6 @@
-from telethon import TelegramClient, events, utils
+from telethon import TelegramClient, events, utils 
+from telethon.tl.functions.users import GetFullUser 
+
 
 from Config import Config
 
@@ -12,45 +14,37 @@ client = TelegramClient('chatbot_session', api_id, api_hash).start(bot_token=bot
 
 
 
-
 @client.on(events.NewMessage(pattern='/me'))
 async def get_user_info(event):
     chat = await event.get_chat()
-    chat_name = utils.get_display_name(chat)
     chat_id = utils.get_peer_id(chat)
 
-    user = await event.get_sender()
-    user_id = user.id
-    user_first_name = user.first_name
-    user_last_name = user.last_name if user.last_name else ""
+    # Kullanıcı hakkında bilgileri al
+    user_id = event.sender_id
+    user = await client(GetFullUser(user_id))
 
-    messages = await client.get_messages(chat_id, limit=0)
-    message_count = len(messages)
+    # Kullanıcı adı ve soyadını al
+    first_name = user.user.first_name
+    last_name = user.user.last_name if user.user.last_name else ""
 
-    info_message = (f"Chat Adı: {chat_name}\n"
-                    f"Toplam Mesaj Sayısı: {message_count}\n"
-                    f"Kullanıcı ID: {user_id}\n"
-                    f"Ad: {user_first_name}\n"
-                    f"Soyad: {user_last_name}")
+    # Chat ismini al
+    chat_title = chat.title
 
+    # Toplam mesaj sayısını al
+    messages = await client.get_messages(chat, limit=0)
+    message_count = messages.total
+
+    # Bilgileri gönder
     buttons = [
         [{"text": "Məlumat al", "callback_data": "get_info"}]
     ]
+    message = f"Chat adı: {chat_title}\nToplam mesaj sayısı: {message_count}\n\nKullanıcı ID: {user_id}\nAd: {first_name}\nSoyad: {last_name}"
+    await event.respond(message, buttons=buttons)
 
-    await event.reply(info_message, buttons=buttons)
-
-@client.on(events.CallbackQuery(pattern="get_info"))
-async def send_user_info(event):
-    user = await event.get_sender()
-    user_id = user.id
-    user_first_name = user.first_name
-    user_last_name = user.last_name if user.last_name else ""
-
-    info_message = (f"Kullanıcı ID: {user_id}\n"
-                    f"Ad: {user_first_name}\n"
-                    f"Soyad: {user_last_name}")
-
-    await event.edit(info_message)
+@client.on(events.CallbackQuery())
+async def callback_handler(event):
+    if event.data == b'get_info':
+        await event.edit('Məlumat alındı.')
 
 client.start()
 client.run_until_disconnected()
