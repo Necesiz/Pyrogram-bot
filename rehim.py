@@ -9,7 +9,9 @@ bot_token = Config.BOT_TOKEN
 
 
 
-app = TelegramClient('bot_session', api_id, api_hash).start(bot_token=bot_token)
+app = Client(":memory:", api_id, api_hash, bot_token=bot_token)
+
+
 def get_chat_info(chat):
     chat_name = chat.title
     messages_count = chat.total_messages
