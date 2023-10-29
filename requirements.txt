@@ -1,4 +1,4 @@
 #teamabasov test
 pyrogram==1.4.16
 TgCrypto
-telethon
+telethon==1.31.0
