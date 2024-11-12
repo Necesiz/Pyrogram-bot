@@ -10,3 +10,4 @@ class Config():
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "5350952995:AAE1Z6Z2E1Va-axYooqcz4qexFbfeTQ0rpU")
     
 6455035511:AAEyXQTsFB-yCG601G_1dwiv4A7Xf0w9Cok
+347c94d92d0bbcfbc223651b73d71345
